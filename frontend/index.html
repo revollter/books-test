@@ -68,8 +68,19 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Image URL</label>
-                                <input type="url" class="form-control" ng-model="vm.newBook.imageLink" placeholder="https://...">
+                                <label class="form-label">Cover Image</label>
+                                <input type="file"
+                                       class="form-control"
+                                       id="imageFile"
+                                       accept="image/jpeg,image/png"
+                                       onchange="angular.element(this).scope().vm.onFileSelect(this.files)">
+                                <div class="form-text">Supported: JPG, PNG (max 5MB)</div>
+                                <div ng-if="vm.imagePreview" class="mt-2">
+                                    <img ng-src="{{vm.imagePreview}}" class="img-thumbnail" style="max-height: 150px;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" ng-click="vm.removeSelectedImage()">
+                                        Remove
+                                    </button>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Link</label>
@@ -127,6 +138,7 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
+                                        <th style="width: 60px;">Cover</th>
                                         <th>Title</th>
                                         <th>Author</th>
                                         <th>Country</th>
@@ -138,6 +150,16 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="book in vm.books">
+                                        <td class="text-center">
+                                            <img ng-if="book.imageLink"
+                                                 ng-src="http://localhost:8080{{book.imageLink}}"
+                                                 class="book-thumbnail"
+                                                 ng-click="vm.openImageModal(book)"
+                                                 alt="{{book.title}}">
+                                            <div ng-if="!book.imageLink" class="book-placeholder">
+                                                <img src="images/book-placeholder.svg" alt="No cover">
+                                            </div>
+                                        </td>
                                         <td>
                                             <a ng-if="book.link" href="{{book.link}}" target="_blank">{{book.title}}</a>
                                             <span ng-if="!book.link">{{book.title}}</span>
@@ -156,6 +178,27 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{vm.selectedBook.title}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img ng-src="http://localhost:8080{{vm.selectedBook.imageLink}}"
+                             class="img-fluid"
+                             alt="{{vm.selectedBook.title}}">
+                    </div>
+                    <div class="modal-footer">
+                        <span class="text-muted me-auto">{{vm.selectedBook.author}}, {{vm.selectedBook.year}}</span>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>

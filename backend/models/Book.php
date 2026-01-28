@@ -27,14 +27,20 @@ class Book extends ActiveRecord
     {
         return [
             [['author', 'country', 'language', 'pages', 'title', 'year'], 'required'],
-            [['pages', 'year'], 'integer'],
+            [['pages', 'year', 'image_id'], 'integer'],
             [['author', 'country'], 'string', 'max' => 255],
             [['language'], 'string', 'max' => 100],
-            [['imageLink', 'link', 'title'], 'string', 'max' => 500],
-            [['imageLink', 'link'], 'url', 'defaultScheme' => 'https', 'skipOnEmpty' => true],
+            [['link', 'title'], 'string', 'max' => 500],
+            [['link'], 'url', 'defaultScheme' => 'https', 'skipOnEmpty' => true],
             [['year'], 'integer', 'min' => -3000, 'max' => 2100],
             [['pages'], 'integer', 'min' => 1],
+            [['image_id'], 'exist', 'targetClass' => Image::class, 'targetAttribute' => 'id', 'skipOnEmpty' => true],
         ];
+    }
+
+    public function getImage()
+    {
+        return $this->hasOne(Image::class, ['id' => 'image_id']);
     }
 
     public function fields()
@@ -43,7 +49,9 @@ class Book extends ActiveRecord
             'id',
             'author',
             'country',
-            'imageLink',
+            'imageLink' => function ($model) {
+                return $model->image ? $model->image->url : null;
+            },
             'language',
             'link',
             'pages',

@@ -61,6 +61,11 @@ $config = [
                         'GET export' => 'export',
                     ],
                 ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'image',
+                    'pluralize' => true,
+                ],
             ],
         ],
     ],

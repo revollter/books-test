@@ -15,6 +15,8 @@ Thumbs.db
 # Yii2
 /backend/runtime/
 /backend/web/assets/
+/backend/web/uploads/*
+!/backend/web/uploads/.gitkeep
 
 # Node
 node_modules/

@@ -13,7 +13,8 @@
             get: get,
             create: create,
             update: update,
-            remove: remove
+            remove: remove,
+            uploadImage: uploadImage
         };
 
         return service;
@@ -51,6 +52,18 @@
                 .then(function(response) {
                     return response.data;
                 });
+        }
+
+        function uploadImage(file) {
+            var formData = new FormData();
+            formData.append('file', file);
+
+            return $http.post(API_URL + '/images', formData, {
+                transformRequest: angular.identity,
+                headers: { 'Content-Type': undefined }
+            }).then(function(response) {
+                return response.data;
+            });
         }
     }
 })();
