@@ -24,6 +24,12 @@ class BookController extends ActiveController
                 'Origin' => ['*'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
+                'Access-Control-Expose-Headers' => [
+                    'X-Pagination-Total-Count',
+                    'X-Pagination-Page-Count',
+                    'X-Pagination-Current-Page',
+                    'X-Pagination-Per-Page',
+                ],
                 'Access-Control-Allow-Credentials' => false,
                 'Access-Control-Max-Age' => 86400,
             ],

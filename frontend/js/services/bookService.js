@@ -19,11 +19,23 @@
 
         return service;
 
-        function getAll() {
-            return $http.get(API_URL + '/books')
-                .then(function(response) {
-                    return response.data;
-                });
+        function getAll(page, perPage) {
+            page = page || 1;
+            perPage = perPage || 10;
+
+            return $http.get(API_URL + '/books', {
+                params: { page: page, 'per-page': perPage }
+            }).then(function(response) {
+                return {
+                    data: response.data,
+                    pagination: {
+                        totalCount: parseInt(response.headers('X-Pagination-Total-Count')) || 0,
+                        pageCount: parseInt(response.headers('X-Pagination-Page-Count')) || 1,
+                        currentPage: parseInt(response.headers('X-Pagination-Current-Page')) || 1,
+                        perPage: parseInt(response.headers('X-Pagination-Per-Page')) || perPage
+                    }
+                };
+            });
         }
 
         function get(id) {

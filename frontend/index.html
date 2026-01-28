@@ -152,7 +152,7 @@
                                     <tr ng-repeat="book in vm.books">
                                         <td class="text-center">
                                             <img ng-if="book.imageLink"
-                                                 ng-src="http://localhost:8080{{book.imageLink}}"
+                                                 ng-src="{{vm.apiUrl}}{{book.imageLink}}"
                                                  class="book-thumbnail"
                                                  ng-click="vm.openImageModal(book)"
                                                  alt="{{book.title}}">
@@ -177,6 +177,16 @@
                                     </tr>
                                 </tbody>
                             </table>
+
+                            <!-- Pagination -->
+                            <books-pagination
+                                current-page="vm.pagination.currentPage"
+                                page-count="vm.pagination.pageCount"
+                                total-count="vm.pagination.totalCount"
+                                on-page-select="vm.goToPage(page)"
+                                on-prev="vm.prevPage()"
+                                on-next="vm.nextPage()">
+                            </books-pagination>
                         </div>
                     </div>
                 </div>
@@ -184,25 +194,7 @@
         </div>
 
         <!-- Image Modal -->
-        <div class="modal fade" id="imageModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{vm.selectedBook.title}}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <img ng-src="http://localhost:8080{{vm.selectedBook.imageLink}}"
-                             class="img-fluid"
-                             alt="{{vm.selectedBook.title}}">
-                    </div>
-                    <div class="modal-footer">
-                        <span class="text-muted me-auto">{{vm.selectedBook.author}}, {{vm.selectedBook.year}}</span>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <image-modal book="vm.selectedBook" modal-id="imageModal"></image-modal>
     </div>
 
     <!-- AngularJS -->
@@ -214,6 +206,8 @@
     <!-- App JS -->
     <script src="js/app.js"></script>
     <script src="js/services/bookService.js"></script>
+    <script src="js/directives/pagination.js"></script>
+    <script src="js/directives/imageModal.js"></script>
     <script src="js/controllers/booksController.js"></script>
 </body>
 </html>

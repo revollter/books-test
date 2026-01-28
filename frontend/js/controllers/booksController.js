@@ -5,36 +5,52 @@
         .module('booksApp')
         .controller('BooksController', BooksController);
 
-    BooksController.$inject = ['$scope', 'BookService'];
+    BooksController.$inject = ['$scope', 'BookService', 'API_URL'];
 
-    function BooksController($scope, BookService) {
+    function BooksController($scope, BookService, API_URL) {
         var vm = this;
 
+        // Data
         vm.books = [];
-        vm.newBook = getEmptyBook();
+        vm.newBook = createEmptyBook();
+        vm.selectedBook = null;
         vm.selectedFile = null;
         vm.imagePreview = null;
-        vm.selectedBook = null;
+
+        // State
         vm.loading = false;
         vm.error = null;
         vm.success = null;
 
+        // Pagination
+        vm.pagination = {
+            currentPage: 1,
+            pageCount: 1,
+            perPage: 10,
+            totalCount: 0
+        };
+
+        // API URL for templates
+        vm.apiUrl = API_URL;
+
+        // Public methods
         vm.loadBooks = loadBooks;
         vm.addBook = addBook;
         vm.deleteBook = deleteBook;
         vm.resetForm = resetForm;
-        vm.getJsonUrl = getJsonUrl;
         vm.onFileSelect = onFileSelect;
         vm.removeSelectedImage = removeSelectedImage;
         vm.openImageModal = openImageModal;
+        vm.goToPage = goToPage;
+        vm.nextPage = nextPage;
+        vm.prevPage = prevPage;
+        vm.getJsonUrl = getJsonUrl;
 
-        init();
+        // Init
+        loadBooks(1);
 
-        function init() {
-            loadBooks();
-        }
-
-        function getEmptyBook() {
+        // Private functions
+        function createEmptyBook() {
             return {
                 author: '',
                 country: '',
@@ -47,42 +63,20 @@
             };
         }
 
-        function loadBooks() {
+        function loadBooks(page) {
             vm.loading = true;
             vm.error = null;
 
-            BookService.getAll()
-                .then(function(books) {
-                    vm.books = books;
+            BookService.getAll(page, vm.pagination.perPage)
+                .then(function(result) {
+                    vm.books = result.data;
+                    vm.pagination = result.pagination;
                     vm.loading = false;
                 })
                 .catch(function(error) {
-                    vm.error = 'Failed to load books: ' + (error.data?.message || error.statusText || 'Unknown error');
+                    vm.error = 'Failed to load books: ' + getErrorMessage(error);
                     vm.loading = false;
                 });
-        }
-
-        function onFileSelect(files) {
-            if (files && files[0]) {
-                vm.selectedFile = files[0];
-
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    $scope.$apply(function() {
-                        vm.imagePreview = e.target.result;
-                    });
-                };
-                reader.readAsDataURL(vm.selectedFile);
-            }
-        }
-
-        function removeSelectedImage() {
-            vm.selectedFile = null;
-            vm.imagePreview = null;
-            var fileInput = document.getElementById('imageFile');
-            if (fileInput) {
-                fileInput.value = '';
-            }
         }
 
         function addBook() {
@@ -94,20 +88,16 @@
             vm.error = null;
             vm.success = null;
 
-            var createBook = function() {
+            var saveBook = function() {
                 BookService.create(vm.newBook)
-                    .then(function(book) {
-                        vm.books.push(book);
-                        vm.newBook = getEmptyBook();
-                        vm.selectedFile = null;
-                        vm.imagePreview = null;
-                        var fileInput = document.getElementById('imageFile');
-                        if (fileInput) fileInput.value = '';
+                    .then(function() {
+                        vm.newBook = createEmptyBook();
+                        clearFileInput();
                         vm.success = 'Book added successfully!';
-                        vm.loading = false;
+                        loadBooks(1);
                     })
                     .catch(function(error) {
-                        vm.error = 'Failed to add book: ' + (error.data?.message || JSON.stringify(error.data) || error.statusText || 'Unknown error');
+                        vm.error = 'Failed to add book: ' + getErrorMessage(error);
                         vm.loading = false;
                     });
             };
@@ -116,14 +106,14 @@
                 BookService.uploadImage(vm.selectedFile)
                     .then(function(image) {
                         vm.newBook.image_id = image.id;
-                        createBook();
+                        saveBook();
                     })
                     .catch(function(error) {
-                        vm.error = 'Failed to upload image: ' + (error.data?.message || JSON.stringify(error.data?.errors) || error.statusText || 'Unknown error');
+                        vm.error = 'Failed to upload image: ' + getErrorMessage(error);
                         vm.loading = false;
                     });
             } else {
-                createBook();
+                saveBook();
             }
         }
 
@@ -137,27 +127,44 @@
 
             BookService.remove(book.id)
                 .then(function() {
-                    var index = vm.books.indexOf(book);
-                    if (index > -1) {
-                        vm.books.splice(index, 1);
-                    }
                     vm.success = 'Book deleted successfully!';
-                    vm.loading = false;
+                    loadBooks(vm.pagination.currentPage);
                 })
                 .catch(function(error) {
-                    vm.error = 'Failed to delete book: ' + (error.data?.message || error.statusText || 'Unknown error');
+                    vm.error = 'Failed to delete book: ' + getErrorMessage(error);
                     vm.loading = false;
                 });
         }
 
         function resetForm() {
-            vm.newBook = getEmptyBook();
+            vm.newBook = createEmptyBook();
+            clearFileInput();
+            vm.error = null;
+            vm.success = null;
+        }
+
+        function onFileSelect(files) {
+            if (files && files[0]) {
+                vm.selectedFile = files[0];
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $scope.$apply(function() {
+                        vm.imagePreview = e.target.result;
+                    });
+                };
+                reader.readAsDataURL(vm.selectedFile);
+            }
+        }
+
+        function removeSelectedImage() {
+            clearFileInput();
+        }
+
+        function clearFileInput() {
             vm.selectedFile = null;
             vm.imagePreview = null;
             var fileInput = document.getElementById('imageFile');
             if (fileInput) fileInput.value = '';
-            vm.error = null;
-            vm.success = null;
         }
 
         function openImageModal(book) {
@@ -166,8 +173,22 @@
             modal.show();
         }
 
+        function goToPage(page) {
+            if (page >= 1 && page <= vm.pagination.pageCount) {
+                loadBooks(page);
+            }
+        }
+
+        function nextPage() {
+            goToPage(vm.pagination.currentPage + 1);
+        }
+
+        function prevPage() {
+            goToPage(vm.pagination.currentPage - 1);
+        }
+
         function getJsonUrl() {
-            return 'http://localhost:8080/books/export';
+            return API_URL + '/books/export';
         }
 
         function validateBook(book) {
@@ -176,6 +197,16 @@
                 return false;
             }
             return true;
+        }
+
+        function getErrorMessage(error) {
+            if (error.data) {
+                if (error.data.message) return error.data.message;
+                if (error.data.errors) return JSON.stringify(error.data.errors);
+                if (typeof error.data === 'string') return error.data;
+                return JSON.stringify(error.data);
+            }
+            return error.statusText || 'Unknown error';
         }
     }
 })();
