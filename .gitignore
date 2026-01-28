@@ -1,0 +1,27 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Composer
+/backend/vendor/
+/backend/composer.lock
+
+# Yii2
+/backend/runtime/
+/backend/web/assets/
+
+# Node
+node_modules/
+package-lock.json
+
+# Docker
+postgres_data/
+
+# Logs
+*.log

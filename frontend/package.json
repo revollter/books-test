@@ -1,0 +1,16 @@
+{
+  "name": "books-frontend",
+  "version": "1.0.0",
+  "description": "Books Management Frontend - AngularJS + Bootstrap",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["angularjs", "bootstrap", "books"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "angular": "^1.8.3",
+    "bootstrap": "^5.3.2"
+  }
+}

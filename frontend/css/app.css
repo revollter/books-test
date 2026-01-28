@@ -1,0 +1,27 @@
+/**
+ * Books Application - Custom Styles
+ */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.book-card {
+    transition: transform 0.2s;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+}
+
+.book-cover {
+    height: 200px;
+    object-fit: cover;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
