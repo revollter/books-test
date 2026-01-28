@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\models\Book;
+use app\models\Image;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
@@ -20,8 +21,17 @@ class SeedController extends Controller
                 continue;
             }
 
+            $imageId = $this->downloadCover($bookData['title'], $bookData['author']);
+
             $book = new Book();
-            $book->attributes = $bookData;
+            $book->title = $bookData['title'];
+            $book->author = $bookData['author'];
+            $book->country = $bookData['country'];
+            $book->language = $bookData['language'];
+            $book->link = $bookData['link'];
+            $book->pages = $bookData['pages'];
+            $book->year = $bookData['year'];
+            $book->image_id = $imageId;
 
             if ($book->save()) {
                 $this->stdout("Created: {$book->title}\n");
@@ -37,9 +47,74 @@ class SeedController extends Controller
 
     public function actionClear()
     {
+        $images = Image::find()->all();
+        foreach ($images as $image) {
+            $filepath = \Yii::getAlias('@app/web/uploads/' . $image->filename);
+            if (file_exists($filepath)) {
+                unlink($filepath);
+            }
+            $image->delete();
+        }
+        $this->stdout("Deleted " . count($images) . " images.\n");
+
         $count = Book::deleteAll();
         $this->stdout("Deleted {$count} books.\n");
         return ExitCode::OK;
+    }
+
+    private function downloadCover(string $title, string $author): ?int
+    {
+        // Search for cover ID by title and author
+        $query = urlencode("{$title} {$author}");
+        $searchUrl = "https://openlibrary.org/search.json?q={$query}&limit=1";
+
+        $searchResult = @file_get_contents($searchUrl);
+        if ($searchResult === false) {
+            $this->stderr("  Failed to search cover for: {$title}\n");
+            return null;
+        }
+
+        $data = json_decode($searchResult, true);
+        if (empty($data['docs'][0]['cover_i'])) {
+            $this->stderr("  No cover found for: {$title}\n");
+            return null;
+        }
+
+        $coverId = $data['docs'][0]['cover_i'];
+        $url = "https://covers.openlibrary.org/b/id/{$coverId}-M.jpg";
+
+        $imageData = @file_get_contents($url);
+        if ($imageData === false) {
+            $this->stderr("  Failed to download cover for: {$title}\n");
+            return null;
+        }
+
+        $uploadPath = \Yii::getAlias('@app/web/uploads');
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+
+        $filename = \Yii::$app->security->generateRandomString(16) . '.jpg';
+        $filepath = $uploadPath . '/' . $filename;
+
+        if (file_put_contents($filepath, $imageData) === false) {
+            $this->stderr("  Failed to save cover for: {$title}\n");
+            return null;
+        }
+
+        $image = new Image();
+        $image->filename = $filename;
+        $image->original_name = preg_replace('/[^a-zA-Z0-9]/', '_', $title) . '.jpg';
+        $image->mime_type = 'image/jpeg';
+        $image->size = strlen($imageData);
+
+        if ($image->save()) {
+            $this->stdout("  Downloaded cover for: {$title}\n");
+            return $image->id;
+        }
+
+        unlink($filepath);
+        return null;
     }
 
     private function getBooks(): array
