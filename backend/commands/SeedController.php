@@ -9,8 +9,31 @@ use yii\console\ExitCode;
 
 class SeedController extends Controller
 {
+    /**
+     * @var bool Skip downloading book covers
+     */
+    public bool $noCovers = false;
+
+    public function options($actionID): array
+    {
+        return array_merge(parent::options($actionID), [
+            'noCovers',
+        ]);
+    }
+
+    public function optionAliases(): array
+    {
+        return array_merge(parent::optionAliases(), [
+            'nc' => 'noCovers',
+        ]);
+    }
+
     public function actionIndex()
     {
+        if ($this->noCovers) {
+            $this->stdout("Skipping cover downloads (--no-covers flag)\n\n");
+        }
+
         $books = $this->getBooks();
 
         $count = 0;
@@ -21,7 +44,7 @@ class SeedController extends Controller
                 continue;
             }
 
-            $imageId = $this->downloadCover($bookData['title'], $bookData['author']);
+            $imageId = $this->noCovers ? null : $this->downloadCover($bookData['title'], $bookData['author']);
 
             $book = new Book();
             $book->title = $bookData['title'];
