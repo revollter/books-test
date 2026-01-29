@@ -6,6 +6,11 @@ use yii\db\ActiveRecord;
 
 class Image extends ActiveRecord
 {
+    /**
+     * @var \yii\web\UploadedFile
+     */
+    public $uploadedFile;
+
     public static function tableName()
     {
         return '{{%image}}';
@@ -18,6 +23,13 @@ class Image extends ActiveRecord
             [['filename', 'original_name', 'mime_type'], 'string', 'max' => 255],
             [['size'], 'integer'],
             [['filename'], 'unique'],
+            [['uploadedFile'], 'image',
+                'extensions' => ['jpg', 'jpeg', 'png'],
+                'mimeTypes' => ['image/jpeg', 'image/png'],
+                'maxSize' => 5 * 1024 * 1024,
+                'checkExtensionByMimeType' => true,
+                'skipOnEmpty' => true,
+            ],
         ];
     }
 
