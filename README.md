@@ -24,7 +24,7 @@ docker compose exec backend php yii migrate --interactive=0
 ```
 #### (Optional) Load sample data - choose ONE:
 ```bash
-docker compose exec backend php yii seed              # downloads covers image also
+docker compose exec backend php yii seed              # downloads covers image also (slow)
 ```
 ```bash
 docker compose exec backend php yii seed --no-covers  # without covers downloading
