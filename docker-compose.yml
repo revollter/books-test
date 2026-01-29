@@ -40,7 +40,8 @@ services:
       dockerfile: Dockerfile
     container_name: books_frontend
     volumes:
-      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend:/usr/share/nginx/html
+      - frontend_node_modules:/usr/share/nginx/html/node_modules
     ports:
       - "8000:80"
     depends_on:
@@ -48,3 +49,4 @@ services:
 
 volumes:
   postgres_data:
+  frontend_node_modules:
