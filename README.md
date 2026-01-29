@@ -14,10 +14,9 @@ Book management application - Yii2 REST API + AngularJS + PostgreSQL in Docker.
 git clone https://github.com/revollter/books-test.git
 cd books-test
 ```
-
 #### Start containers
 ```bash
-docker compose up -d
+docker compose up --build -d
 ```
 #### Run database migrations
 ```bash
@@ -30,7 +29,6 @@ docker compose exec backend php yii seed              # downloads covers image a
 ```bash
 docker compose exec backend php yii seed --no-covers  # without covers downloading
 ```
-
 > **Note:** Run only ONE of the seed commands above, not both!
 
 Application available at: http://localhost:8000
