@@ -41,51 +41,11 @@
                     </div>
                     <div class="card-body">
                         <form ng-submit="vm.addBook()">
-                            <div class="mb-3">
-                                <label class="form-label">Title *</label>
-                                <input type="text" class="form-control" ng-model="vm.newBook.title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Author *</label>
-                                <input type="text" class="form-control" ng-model="vm.newBook.author" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Country *</label>
-                                <input type="text" class="form-control" ng-model="vm.newBook.country" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Language *</label>
-                                <input type="text" class="form-control" ng-model="vm.newBook.language" required>
-                            </div>
-                            <div class="row">
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">Pages *</label>
-                                    <input type="number" class="form-control" ng-model="vm.newBook.pages" min="1" required>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">Year *</label>
-                                    <input type="number" class="form-control" ng-model="vm.newBook.year" required>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Cover Image</label>
-                                <input type="file"
-                                       class="form-control"
-                                       id="imageFile"
-                                       accept="image/jpeg,image/png"
-                                       onchange="angular.element(this).scope().vm.onFileSelect(this.files)">
-                                <div class="form-text">Supported: JPG, PNG (max 5MB)</div>
-                                <div ng-if="vm.imagePreview" class="mt-2">
-                                    <img ng-src="{{vm.imagePreview}}" class="img-thumbnail" style="max-height: 150px;">
-                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" ng-click="vm.removeSelectedImage()">
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Link</label>
-                                <input type="url" class="form-control" ng-model="vm.newBook.link" placeholder="https://...">
-                            </div>
+                            <book-form
+                                book="vm.newBook"
+                                selected-file="vm.selectedFile"
+                                input-id="addImageFile">
+                            </book-form>
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary" ng-disabled="vm.loading">
                                     <span ng-if="vm.loading">Adding...</span>
@@ -114,7 +74,7 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Books List ({{vm.books.length}})</h5>
+                        <h5 class="mb-0">Books List ({{vm.pagination.totalCount}})</h5>
                         <button class="btn btn-light btn-sm" ng-click="vm.loadBooks()" ng-disabled="vm.loading">
                             Refresh
                         </button>
@@ -169,8 +129,11 @@
                                         <td>{{book.language}}</td>
                                         <td>{{book.year}}</td>
                                         <td>{{book.pages}}</td>
-                                        <td>
-                                            <button class="btn btn-danger btn-sm" ng-click="vm.deleteBook(book)" ng-disabled="vm.loading">
+                                        <td class="text-nowrap">
+                                            <button class="btn btn-outline-primary btn-sm me-1" ng-click="vm.openEditModal(book)" ng-disabled="vm.loading">
+                                                Edit
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" ng-click="vm.openDeleteModal(book)" ng-disabled="vm.loading">
                                                 Delete
                                             </button>
                                         </td>
@@ -193,8 +156,28 @@
             </div>
         </div>
 
-        <!-- Image Modal -->
-        <image-modal book="vm.selectedBook" modal-id="imageModal"></image-modal>
+        <!-- Modals -->
+        <image-modal
+            book="vm.selectedBook"
+            modal-id="imageModal">
+        </image-modal>
+
+        <edit-modal
+            edit-book="vm.editBook"
+            modal-id="editModal"
+            loading="vm.loading"
+            on-save="vm.updateBook(book, file)">
+        </edit-modal>
+
+        <confirm-modal
+            modal-id="deleteModal"
+            title="Delete Book"
+            message="vm.deleteMessage"
+            confirm-text="Delete"
+            confirm-class="btn-danger"
+            loading="vm.loading"
+            on-confirm="vm.confirmDelete()">
+        </confirm-modal>
     </div>
 
     <!-- AngularJS -->
@@ -203,11 +186,23 @@
     <!-- Bootstrap JS -->
     <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- App JS -->
+    <!-- App -->
     <script src="js/app.js"></script>
+
+    <!-- Services -->
     <script src="js/services/bookService.js"></script>
-    <script src="js/directives/pagination.js"></script>
+    <script src="js/services/modalService.js"></script>
+
+    <!-- Directives -->
+    <script src="js/directives/bookForm.js"></script>
+    <script src="js/directives/confirmModal.js"></script>
+    <script src="js/directives/editModal.js"></script>
+    <script src="js/directives/fileInput.js"></script>
     <script src="js/directives/imageModal.js"></script>
+    <script src="js/directives/imageUpload.js"></script>
+    <script src="js/directives/pagination.js"></script>
+
+    <!-- Controllers -->
     <script src="js/controllers/booksController.js"></script>
 </body>
 </html>

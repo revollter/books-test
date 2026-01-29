@@ -1,0 +1,21 @@
+<div class="mb-3">
+    <label class="form-label">Cover Image</label>
+    <div ng-if="imageLink && !imagePreview" class="mb-2">
+        <img ng-src="{{apiUrl}}{{imageLink}}" class="img-thumbnail" style="max-height: 100px;">
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" ng-click="removeImage()">
+            Remove
+        </button>
+    </div>
+    <div ng-if="imagePreview" class="mb-2">
+        <img ng-src="{{imagePreview}}" class="img-thumbnail" style="max-height: 100px;">
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" ng-click="clearFile()">
+            Remove
+        </button>
+    </div>
+    <input type="file"
+           class="form-control"
+           id="{{inputId}}"
+           accept="image/jpeg,image/png"
+           file-input="onFileSelect(files)">
+    <div class="form-text">Supported: JPG, PNG (max 5MB)</div>
+</div>

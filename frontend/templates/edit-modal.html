@@ -1,0 +1,26 @@
+<div class="modal fade" id="{{modalId}}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form ng-submit="onSave({book: editBook, file: selectedFile})">
+                <div class="modal-body">
+                    <book-form
+                        book="editBook"
+                        selected-file="selectedFile"
+                        input-id="editImageFile">
+                    </book-form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="loading">
+                        <span ng-if="loading">Saving...</span>
+                        <span ng-if="!loading">Save Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

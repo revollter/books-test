@@ -1,0 +1,35 @@
+<div class="mb-3">
+    <label class="form-label">Title *</label>
+    <input type="text" class="form-control" ng-model="book.title" required>
+</div>
+<div class="mb-3">
+    <label class="form-label">Author *</label>
+    <input type="text" class="form-control" ng-model="book.author" required>
+</div>
+<div class="mb-3">
+    <label class="form-label">Country *</label>
+    <input type="text" class="form-control" ng-model="book.country" required>
+</div>
+<div class="mb-3">
+    <label class="form-label">Language *</label>
+    <input type="text" class="form-control" ng-model="book.language" required>
+</div>
+<div class="row">
+    <div class="col-6 mb-3">
+        <label class="form-label">Pages *</label>
+        <input type="number" class="form-control" ng-model="book.pages" min="1" required>
+    </div>
+    <div class="col-6 mb-3">
+        <label class="form-label">Year *</label>
+        <input type="number" class="form-control" ng-model="book.year" required>
+    </div>
+</div>
+<image-upload
+    image-link="book.imageLink"
+    selected-file="selectedFile"
+    input-id="{{inputId}}">
+</image-upload>
+<div class="mb-3">
+    <label class="form-label">Link</label>
+    <input type="url" class="form-control" ng-model="book.link" placeholder="https://...">
+</div>
